@@ -73,3 +73,8 @@ export const searchPatients = async (query: string) => {
     ORDER BY created_at DESC;
   `;
 };
+
+// Execute raw SQL query
+export const executeRawQuery = async (query: string) => {
+  return await sql.unsafe(query);
+};

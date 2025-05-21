@@ -165,4 +165,4 @@ const PatientRegistration: React.FC = () => {
   );
 };
 
-export default PatientRegistration; 
+export default PatientRegistration;

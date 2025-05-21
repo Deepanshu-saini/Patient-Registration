@@ -4,6 +4,7 @@ import { createTheme } from '@mui/material/styles';
 import Layout from './components/Layout';
 import PatientRegistration from './components/PatientRegistration';
 import PatientList from './components/PatientList';
+import RawQuery from './components/RawQuery';
 
 const theme = createTheme({
   palette: {
@@ -26,6 +27,7 @@ function App() {
           <Routes>
             <Route path="/" element={<PatientRegistration />} />
             <Route path="/patients" element={<PatientList />} />
+            <Route path="/query" element={<RawQuery />} />
           </Routes>
         </Layout>
       </Router>
@@ -33,4 +35,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

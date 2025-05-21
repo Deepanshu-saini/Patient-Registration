@@ -27,6 +27,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Button color="inherit" component={RouterLink} to="/patients">
             Patients
           </Button>
+          <Button color="inherit" component={RouterLink} to="/query">
+            Raw Query
+          </Button>
         </Toolbar>
       </AppBar>
       <Container component="main" sx={{ mt: 4, mb: 4, flex: 1 }}>
@@ -36,4 +39,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-export default Layout; 
+export default Layout;
