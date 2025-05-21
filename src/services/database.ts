@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 
 // Initialize the database connection
-const sql = neon(process.env.DATABASE_URL || '');
+const sql = neon(import.meta.env.VITE_DATABASE_URL || '');
 
 // Create the patients table if it doesn't exist
 export const initializeDatabase = async () => {
