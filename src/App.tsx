@@ -5,6 +5,8 @@ import Layout from './components/Layout';
 import PatientRegistration from './components/PatientRegistration';
 import PatientList from './components/PatientList';
 import RawQuery from './components/RawQuery';
+import { initializeDatabase } from './services/database';
+import React from 'react';
 
 const theme = createTheme({
   palette: {
@@ -19,6 +21,18 @@ const theme = createTheme({
 });
 
 function App() {
+  React.useEffect(() => {
+    const setupDatabase = async () => {
+      try {
+        await initializeDatabase();
+        console.log('Database initialized successfully.');
+      } catch (error) {
+        console.error('Error initializing database:', error);
+      }
+    };
+    setupDatabase();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
