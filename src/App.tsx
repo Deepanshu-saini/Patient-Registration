@@ -3,6 +3,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import Layout from './components/Layout';
 import PatientRegistration from './components/PatientRegistration';
+import PatientList from './components/PatientList';
 
 const theme = createTheme({
   palette: {
@@ -24,6 +25,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<PatientRegistration />} />
+            <Route path="/patients" element={<PatientList />} />
           </Routes>
         </Layout>
       </Router>
