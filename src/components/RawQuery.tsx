@@ -86,7 +86,9 @@ const RawQuery: React.FC = () => {
                 <TableRow key={index}>
                   {columns.map((column) => (
                     <TableCell key={`${index}-${column}`}>
-                      {row[column]}
+                      {row[column] instanceof Date
+                        ? row[column].toLocaleDateString()
+                        : String(row[column])}
                     </TableCell>
                   ))}
                 </TableRow>
