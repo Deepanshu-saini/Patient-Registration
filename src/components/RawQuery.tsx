@@ -26,7 +26,7 @@ const RawQuery: React.FC = () => {
       setError(null);
       const data = await executeRawQuery(query);
       
-      if (data && data.length > 0) {
+      if (data && Array.isArray(data) && data.length > 0) {
         setColumns(Object.keys(data[0]));
         setResults(data);
       } else {

@@ -76,5 +76,6 @@ export const searchPatients = async (query: string) => {
 
 // Execute raw SQL query
 export const executeRawQuery = async (query: string) => {
-  return await sql.unsafe(query);
-};
+    const result = await sql.query(query);
+    return result;
+  };
