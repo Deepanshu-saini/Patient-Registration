@@ -21,22 +21,55 @@ const RawQuery: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [columns, setColumns] = useState<string[]>([]);
 
-  const handleExecute = async () => {
+  const validateQuery = (query: string): boolean => {
+    // Convert to lowercase and trim for case-insensitive check
+    const normalizedQuery = query.toLowerCase().trim();
+    
+    // Check if query starts with SELECT
+    if (!normalizedQuery.startsWith('select')) {
+      setError('Only SELECT queries are allowed for security reasons.');
+      return false;
+    }
+
+    // Check for potentially dangerous keywords
+    const dangerousKeywords = [
+      'insert', 'update', 'delete', 'drop', 'alter', 'truncate',
+      'create', 'replace', 'grant', 'revoke', 'commit', 'rollback'
+    ];
+
+    for (const keyword of dangerousKeywords) {
+      if (normalizedQuery.includes(keyword)) {
+        setError(`Query contains forbidden keyword: ${keyword}`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setResults([]);
+    setColumns([]);
+
+    if (!validateQuery(query)) {
+      return;
+    }
+
     try {
-      setError(null);
-      const data: any = await executeRawQuery(query);
+      const data = await executeRawQuery(query);
       
-      if (data && Array.isArray(data) && data.length > 0) {
+      if (data && data.length > 0) {
+        // Get column names from the first row
         setColumns(Object.keys(data[0]));
         setResults(data);
       } else {
-        setColumns([]);
         setResults([]);
+        setError('Query executed successfully but returned no results.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      setColumns([]);
-      setResults([]);
+      setError(err instanceof Error ? err.message : 'Failed to execute query');
     }
   };
 
@@ -45,57 +78,66 @@ const RawQuery: React.FC = () => {
       <Typography variant="h5" gutterBottom>
         Raw SQL Query
       </Typography>
-      <Box sx={{ mb: 3,width: '100%' }}>
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          label="Enter SQL Query"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="SELECT * FROM patients;"
-        />
-      </Box>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleExecute}
-        sx={{ mb: 3 }}
-      >
-        Execute Query
-      </Button>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Note: Only SELECT queries are allowed for security reasons.
+      </Typography>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
 
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Enter your SELECT query here..."
+          sx={{ mb: 2 }}
+        />
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          disabled={!query.trim()}
+        >
+          Execute Query
+        </Button>
+      </Box>
+
       {results.length > 0 && (
-        <TableContainer sx={{ width: '100%' }}>
-          <Table sx={{ width: '100%' }}>
-            <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableCell key={column}>{column}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {results.map((row, index) => (
-                <TableRow key={index}>
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Results
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
                   {columns.map((column) => (
-                    <TableCell key={`${index}-${column}`}>
-                      {row[column] instanceof Date
-                        ? row[column].toLocaleDateString()
-                        : String(row[column])}
-                    </TableCell>
+                    <TableCell key={column}>{column}</TableCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {results.map((row, rowIndex) => (
+                  <TableRow key={rowIndex}>
+                    {columns.map((column) => (
+                      <TableCell key={`${rowIndex}-${column}`}>
+                        {row[column]?.toString() || '-'}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
       )}
     </Paper>
   );
