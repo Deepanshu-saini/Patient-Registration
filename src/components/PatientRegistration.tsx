@@ -8,6 +8,7 @@ import {
   Grid,
   MenuItem,
   Alert,
+  Avatar
 } from '@mui/material';
 import { addPatient } from '../services/database';
 
@@ -66,9 +67,19 @@ const PatientRegistration: React.FC = () => {
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Patient Registration
-      </Typography>
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Avatar
+            src="https://img.freepik.com/free-vector/medical-healthcare-logo-design_23-2149611238.jpg"
+            alt="Medical Logo"
+            sx={{ width: 100, height: 100, mx: 'auto', mb: 2 }}
+          />
+          <Typography variant="h4" component="h1" gutterBottom color="primary">
+            Patient Registration
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            Please fill in the patient's information below
+          </Typography>
+        </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
