@@ -66,7 +66,7 @@ const PatientRegistration: React.FC = () => {
   };
 
   return (
-    <Paper sx={{ p: 3 }}>
+    <Paper sx={{ p: 3, width:'95vw' }}>
       <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Avatar
             src="https://img.freepik.com/free-vector/medical-healthcare-logo-design_23-2149611238.jpg"
@@ -94,8 +94,8 @@ const PatientRegistration: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+          <Box>
             <TextField
               fullWidth
               label="First Name"
@@ -104,8 +104,8 @@ const PatientRegistration: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          </Box>
+          <Box>
             <TextField
               fullWidth
               label="Last Name"
@@ -114,8 +114,8 @@ const PatientRegistration: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          </Box>
+          <Box>
             <TextField
               fullWidth
               label="Date of Birth"
@@ -126,25 +126,23 @@ const PatientRegistration: React.FC = () => {
               InputLabelProps={{ shrink: true }}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Box sx={{ width: '100px' }}> {/* or a specific width like '300px' */}
-              <TextField
-                fullWidth
-                select
-                label="Gender"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                required
-              >
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-                <MenuItem value="other">Other</MenuItem>
-              </TextField>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          </Box>
+          <Box>
+            <TextField
+              fullWidth
+              select
+              label="Gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              required
+            >
+              <MenuItem value="male">Male</MenuItem>
+              <MenuItem value="female">Female</MenuItem>
+              <MenuItem value="other">Other</MenuItem>
+            </TextField>
+          </Box>
+          <Box>
             <TextField
               fullWidth
               label="Email"
@@ -154,8 +152,8 @@ const PatientRegistration: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          </Box>
+          <Box>
             <TextField
               fullWidth
               label="Phone"
@@ -164,8 +162,8 @@ const PatientRegistration: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+          <Box sx={{ gridColumn: { xs: '1', sm: '1 / span 2' } }}>
             <TextField
               fullWidth
               label="Address"
@@ -176,9 +174,8 @@ const PatientRegistration: React.FC = () => {
               rows={1}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Box sx={{ width: '100px' }}> {/* or a specific width like '300px' */}
+          </Box>
+          <Box>
             <TextField
               fullWidth
               select
@@ -191,14 +188,13 @@ const PatientRegistration: React.FC = () => {
               <MenuItem value="A-">A-</MenuItem>
               <MenuItem value="B+">B+</MenuItem>
               <MenuItem value="B-">B-</MenuItem>
-                <MenuItem value="AB+">AB+</MenuItem>
-                <MenuItem value="AB-">AB-</MenuItem>
-                <MenuItem value="O+">O+</MenuItem>
-                <MenuItem value="O-">O-</MenuItem>
-              </TextField>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6}>
+              <MenuItem value="AB+">AB+</MenuItem>
+              <MenuItem value="AB-">AB-</MenuItem>
+              <MenuItem value="O+">O+</MenuItem>
+              <MenuItem value="O-">O-</MenuItem>
+            </TextField>
+          </Box>
+          <Box>
             <TextField
               fullWidth
               label="Insurance Provider"
@@ -206,17 +202,8 @@ const PatientRegistration: React.FC = () => {
               value={formData.insuranceProvider}
               onChange={handleChange}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Insurance Number"
-              name="insuranceNumber"
-              value={formData.insuranceNumber}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+          <Box sx={{ gridColumn: { xs: '1', sm: '1 / span 2' } }}>
             <TextField
               fullWidth
               label="Allergies"
@@ -227,8 +214,8 @@ const PatientRegistration: React.FC = () => {
               rows={1}
               placeholder="List any allergies, separated by commas"
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+          <Box sx={{ gridColumn: { xs: '1', sm: '1 / span 2' } }}>
             <TextField
               fullWidth
               label="Medical Conditions"
@@ -239,8 +226,8 @@ const PatientRegistration: React.FC = () => {
               rows={1}
               placeholder="List any medical conditions, separated by commas"
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+          <Box sx={{ gridColumn: { xs: '1', sm: '1 / span 2' } }}>
             <TextField
               fullWidth
               label="Current Medications"
@@ -251,8 +238,8 @@ const PatientRegistration: React.FC = () => {
               rows={1}
               placeholder="List current medications, separated by commas"
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
           <Button

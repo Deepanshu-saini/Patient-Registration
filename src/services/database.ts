@@ -27,6 +27,7 @@ export interface Visit {
   id: number;
   patient_id: number;
   visit_date: string;
+  doctor_name: string;
   reason: string;
   notes: string;
   created_at: string;
@@ -279,4 +280,55 @@ export const getPatientVisits = async (patientId: number): Promise<Visit[]> => {
     notes: row[5],
     created_at: row[6]
   }));
+};
+
+// Delete a patient
+export const deletePatient = async (id: number): Promise<void> => {
+  await sql`
+    DELETE FROM patients WHERE id = ${id};
+  `;
+};
+
+// Update a patient
+export const updatePatient = async (id: number, updates: Partial<Patient>): Promise<Patient> => {
+  const result = await sql`
+    UPDATE patients
+    SET
+      first_name = COALESCE(${updates.first_name}, first_name),
+      last_name = COALESCE(${updates.last_name}, last_name),
+      date_of_birth = COALESCE(${updates.date_of_birth}, date_of_birth),
+      gender = COALESCE(${updates.gender}, gender),
+      email = COALESCE(${updates.email}, email),
+      phone = COALESCE(${updates.phone}, phone),
+      address = COALESCE(${updates.address}, address),
+      blood_group = COALESCE(${updates.blood_group}, blood_group),
+      allergies = COALESCE(${updates.allergies}, allergies),
+      conditions = COALESCE(${updates.conditions}, conditions),
+      medications = COALESCE(${updates.medications}, medications),
+      insurance_provider = COALESCE(${updates.insurance_provider}, insurance_provider),
+      insurance_number = COALESCE(${updates.insurance_number}, insurance_number),
+      allowed_to_visit = COALESCE(${updates.allowed_to_visit}, allowed_to_visit)
+    WHERE id = ${id}
+    RETURNING *;
+  `;
+  const row = result[0];
+  return {
+    id: row.id,
+    first_name: row.first_name,
+    last_name: row.last_name,
+    date_of_birth: row.date_of_birth,
+    gender: row.gender,
+    email: row.email,
+    phone: row.phone,
+    address: row.address,
+    blood_group: row.blood_group,
+    allergies: row.allergies,
+    conditions: row.conditions,
+    medications: row.medications,
+    insurance_provider: row.insurance_provider,
+    insurance_number: row.insurance_number,
+    allowed_to_visit: Boolean(row.allowed_to_visit),
+    visit_count: row.visit_count,
+    created_at: row.created_at
+  };
 }; 
