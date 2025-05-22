@@ -4,6 +4,7 @@ import {
   Typography,
   TextField,
   Button,
+  Box,
   Grid,
   MenuItem,
   Alert,
@@ -19,12 +20,41 @@ const PatientRegistration: React.FC = () => {
     email: '',
     phone: '',
     address: '',
+    bloodGroup: '',
+    allergies: '',
+    conditions: '',
+    medications: '',
+    insuranceProvider: '',
+    insuranceNumber: '',
   });
 
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error' | null;
-    message: string;
-  }>({ type: null, message: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await addPatient(formData);
+      setSuccess('Patient registered successfully!');
+      setFormData({
+        firstName: '',
+        lastName: '',
+        dateOfBirth: '',
+        gender: '',
+        email: '',
+        phone: '',
+        address: '',
+        bloodGroup: '',
+        allergies: '',
+        conditions: '',
+        medications: '',
+        insuranceProvider: '',
+        insuranceNumber: '',
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to register patient');
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,89 +64,74 @@ const PatientRegistration: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await addPatient(formData);
-      setStatus({
-        type: 'success',
-        message: 'Patient registered successfully!',
-      });
-      setFormData({
-        firstName: '',
-        lastName: '',
-        dateOfBirth: '',
-        gender: '',
-        email: '',
-        phone: '',
-        address: '',
-      });
-    } catch (error) {
-      setStatus({
-        type: 'error',
-        message: 'Error registering patient. Please try again.',
-      });
-    }
-  };
-
   return (
     <Paper sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Register New Patient
+        Patient Registration
       </Typography>
-      {status.type && (
-        <Alert severity={status.type} sx={{ mb: 2 }}>
-          {status.message}
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
         </Alert>
       )}
+
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
-              required
               fullWidth
               label="First Name"
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
-              required
               fullWidth
               label="Last Name"
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
-              required
               fullWidth
-              type="date"
               label="Date of Birth"
               name="dateOfBirth"
+              type="date"
               value={formData.dateOfBirth}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              required
-              fullWidth
-              select
-              label="Gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-            >
-              <MenuItem value="male">Male</MenuItem>
-              <MenuItem value="female">Female</MenuItem>
-              <MenuItem value="other">Other</MenuItem>
-            </TextField>
+            <Box sx={{ width: '100px' }}> {/* or a specific width like '300px' */}
+              <TextField
+                fullWidth
+                select
+                label="Gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+              >
+                <MenuItem value="male">Male</MenuItem>
+                <MenuItem value="female">Female</MenuItem>
+                <MenuItem value="other">Other</MenuItem>
+              </TextField>
+            </Box>
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
@@ -126,6 +141,7 @@ const PatientRegistration: React.FC = () => {
               type="email"
               value={formData.email}
               onChange={handleChange}
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -135,6 +151,7 @@ const PatientRegistration: React.FC = () => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
+              required
             />
           </Grid>
           <Grid item xs={12}>
@@ -142,27 +159,111 @@ const PatientRegistration: React.FC = () => {
               fullWidth
               label="Address"
               name="address"
-              multiline
-              rows={3}
               value={formData.address}
+              onChange={handleChange}
+              multiline
+              rows={1}
+              required
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ width: '100px' }}> {/* or a specific width like '300px' */}
+            <TextField
+              fullWidth
+              select
+              label="Blood Group"
+              name="bloodGroup"
+              value={formData.bloodGroup}
+              onChange={handleChange}
+            >
+              <MenuItem value="A+">A+</MenuItem>
+              <MenuItem value="A-">A-</MenuItem>
+              <MenuItem value="B+">B+</MenuItem>
+              <MenuItem value="B-">B-</MenuItem>
+                <MenuItem value="AB+">AB+</MenuItem>
+                <MenuItem value="AB-">AB-</MenuItem>
+                <MenuItem value="O+">O+</MenuItem>
+                <MenuItem value="O-">O-</MenuItem>
+              </TextField>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Insurance Provider"
+              name="insuranceProvider"
+              value={formData.insuranceProvider}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Insurance Number"
+              name="insuranceNumber"
+              value={formData.insuranceNumber}
               onChange={handleChange}
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              size="large"
+            <TextField
               fullWidth
-            >
-              Register Patient
-            </Button>
+              label="Allergies"
+              name="allergies"
+              value={formData.allergies}
+              onChange={handleChange}
+              multiline
+              rows={1}
+              placeholder="List any allergies, separated by commas"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Medical Conditions"
+              name="conditions"
+              value={formData.conditions}
+              onChange={handleChange}
+              multiline
+              rows={1}
+              placeholder="List any medical conditions, separated by commas"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Current Medications"
+              name="medications"
+              value={formData.medications}
+              onChange={handleChange}
+              multiline
+              rows={1}
+              placeholder="List current medications, separated by commas"
+            />
           </Grid>
         </Grid>
+
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={
+              !formData.firstName ||
+              !formData.lastName ||
+              !formData.dateOfBirth ||
+              !formData.gender ||
+              !formData.email ||
+              !formData.phone ||
+              !formData.address
+            }
+          >
+            Register Patient
+          </Button>
+        </Box>
       </form>
     </Paper>
   );
 };
 
-export default PatientRegistration;
+export default PatientRegistration; 
