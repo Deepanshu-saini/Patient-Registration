@@ -185,6 +185,17 @@ export const addVisit = async (visit: {
   return result[0];
 };
 
+// Update patient's visit status
+export const updateVisitStatus = async (patientId: number, allowedToVisit: boolean) => {
+  const result = await sql`
+    UPDATE patients
+    SET allowed_to_visit = ${allowedToVisit}
+    WHERE id = ${patientId}
+    RETURNING *;
+  `;
+  return result[0];
+};
+
 // Search patients
 export const searchPatients = async (query: string) => {
   return await sql`
