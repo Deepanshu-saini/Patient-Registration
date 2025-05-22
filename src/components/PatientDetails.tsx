@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   Button,
   Chip,
   Table,
@@ -59,7 +58,7 @@ const PatientDetails: React.FC = () => {
         <Alert severity="error">{error || 'Patient not found'}</Alert>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/patients')}
           sx={{ mt: 2 }}
         >
           Back to Patient List
@@ -72,7 +71,7 @@ const PatientDetails: React.FC = () => {
     <Box sx={{ p: 3 }}>
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/patients')}
         sx={{ mb: 3 }}
       >
         Back to Patient List

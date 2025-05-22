@@ -11,6 +11,7 @@ import {
   InputLabel,
   Select,
 } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 import { addVisit, getAllPatients } from '../services/database';
 import type { Patient } from '../services/database';
 
@@ -62,16 +63,23 @@ const RecordVisit: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name as string]: value,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+    setFormData((prev) => ({
+      ...prev,
+      patientId: e.target.value,
     }));
   };
 
   return (
-    <Paper sx={{ p: 3,width: '96vw' }}>
+    <Paper sx={{ p: 3, width: '96vw' }}>
       <Typography variant="h5" gutterBottom>
         Record Patient Visit
       </Typography>
@@ -94,7 +102,7 @@ const RecordVisit: React.FC = () => {
           <Select
             name="patientId"
             value={formData.patientId}
-            onChange={handleChange}
+            onChange={handleSelectChange}
             label="Select Patient"
             required
           >
