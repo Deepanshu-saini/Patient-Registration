@@ -1,97 +1,123 @@
 # Patient Registration System
 
-A modern web application for managing patient registrations and visit history in healthcare facilities. Built with React, TypeScript, and Material-UI.
+A modern web application for managing patient records and visits in a healthcare facility. Built with React, TypeScript, and Material-UI, this system provides a user-friendly interface for healthcare administrators to manage patient information efficiently.
 
 ## Features
 
-- **Patient Registration**
-  - Capture essential patient information
-  - Required fields: First Name, Last Name, Date of Birth, Gender, Email, Phone, Address
-  - Optional fields: Blood Group, Insurance details, Medical history
-  - Form validation and error handling
+### Patient Management
+- **Patient Registration**: Add new patients with comprehensive details
+- **Patient List**: View all patients with sorting, filtering, and search capabilities
+- **Patient Details**: View detailed patient information and visit history
+- **Edit Patient**: Update patient information and status
+- **Delete Patient**: Remove patient records from the system
 
-- **Patient Management**
-  - View list of registered patients
-  - Search and filter patients
-  - View detailed patient information
-  - Track patient visit history
+### Visit Management
+- **Record Visits**: Log patient visits with doctor information and notes
+- **Visit History**: View complete visit history for each patient
+- **Visit Details**: Access detailed information about each visit
 
-- **Visit Management**
-  - Record patient visits
-  - View visit history
-  - Toggle visit permissions
-  - Track visit dates and status
+### Advanced Features
+- **Search & Filter**: Find patients quickly using multiple criteria
+- **Sorting**: Sort patient list by any column
+- **Pagination**: Navigate through large datasets efficiently
+- **Status Management**: Track patient status (Active/Inactive)
+- **Raw Query Interface**: Execute SELECT queries for data analysis (read-only)
 
-## Tech Stack
+## Technical Stack
 
-- React
-- TypeScript
-- Material-UI
-- SQLite (via better-sqlite3)
-- Express.js
+- **Frontend**: React with TypeScript
+- **UI Framework**: Material-UI (MUI)
+- **Routing**: React Router
+- **Database**: pgLite (PostgreSQL-compatible in-memory database)
+- **API**: RESTful API with Node.js/Express
+- **Deployment**: Vercel
 
-## Prerequisites
+## Database: pgLite
 
+This project uses pgLite, a lightweight PostgreSQL-compatible database that runs entirely in memory. pgLite provides several advantages:
+
+### Benefits of pgLite
+- **Zero Configuration**: No need to install or configure PostgreSQL
+- **In-Memory Performance**: Fast data access and query execution
+- **PostgreSQL Compatibility**: Supports standard PostgreSQL SQL syntax
+- **Perfect for Development**: Ideal for development and testing environments
+- **Easy Setup**: Automatically creates and manages the database
+
+### How pgLite Works in This Project
+1. **Database Initialization**: The database is automatically initialized when the application starts
+2. **Schema Creation**: Tables are created using standard PostgreSQL syntax
+3. **Data Persistence**: Data is stored in memory during the application's runtime
+4. **Query Execution**: All database operations use standard PostgreSQL queries
+
+## Getting Started
+
+### Prerequisites
 - Node.js (v14 or higher)
-- npm or yarn
+- npm or yarn package manager
 
-## Installation
+### Installation
 
 1. Clone the repository:
-```bash
-git clone [repository-url]
-cd patient-registration
-```
+   ```bash
+   git clone https://github.com/yourusername/patient-registration.git
+   cd patient-registration
+   ```
 
 2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
+   ```bash
+   npm install
+   ```
 
-3. Start the development server:
-```bash
-npm start
-# or
-yarn start
-```
+3. Set up environment variables:
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   DATABASE_URL=your_postgresql_connection_string
+   ```
 
-The application will be available at `http://localhost:3000`
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Database Setup
+5. Open your browser and navigate to `http://localhost:3000`
 
-The application uses SQLite as its database. The database file will be created automatically when you first run the application.
+## Database Schema
 
-## Usage
+### Patients Table
+- `id`: Primary key
+- `first_name`: Patient's first name
+- `last_name`: Patient's last name
+- `date_of_birth`: Patient's date of birth
+- `gender`: Patient's gender
+- `email`: Contact email
+- `phone`: Contact phone number
+- `address`: Physical address
+- `blood_group`: Blood type
+- `allergies`: Known allergies
+- `conditions`: Medical conditions
+- `medications`: Current medications
+- `insurance_provider`: Insurance company name
+- `insurance_number`: Insurance policy number
+- `allowed_to_visit`: Visit status (boolean)
+- `visit_count`: Number of visits
+- `created_at`: Record creation timestamp
 
-### Registering a Patient
+### Visits Table
+- `id`: Primary key
+- `patient_id`: Foreign key to patients table
+- `visit_date`: Date of visit
+- `doctor_name`: Name of the attending doctor
+- `reason`: Purpose of visit
+- `notes`: Additional notes
+- `created_at`: Record creation timestamp
 
-1. Navigate to the Patient Registration page
-2. Fill in the required fields:
-   - First Name
-   - Last Name
-   - Date of Birth
-   - Gender
-   - Email
-   - Phone
-   - Address
-3. Optionally fill in additional information
-4. Click "Register Patient"
+## Security Features
 
-### Managing Patients
-
-1. View the patient list on the main page
-2. Use the search bar to find specific patients
-3. Click "View Details" to see complete patient information
-4. Click "View Visits" to see patient visit history
-
-### Managing Visits
-
-1. Access visit history through the patient list
-2. Toggle "Allowed to Visit" status
-3. View visit dates and status
-4. Add new visits as needed
+- Input validation and sanitization
+- SQL injection prevention
+- Read-only raw query interface
+- Secure database connections
+- Environment variable protection
 
 ## Contributing
 
@@ -103,4 +129,8 @@ The application uses SQLite as its database. The database file will be created a
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, email saindeepansh@gmail.com or create an issue in the repository. 
