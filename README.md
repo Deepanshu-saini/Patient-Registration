@@ -1,54 +1,106 @@
-# React + TypeScript + Vite
+# Patient Registration System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for managing patient registrations and visit history in healthcare facilities. Built with React, TypeScript, and Material-UI.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Patient Registration**
+  - Capture essential patient information
+  - Required fields: First Name, Last Name, Date of Birth, Gender, Email, Phone, Address
+  - Optional fields: Blood Group, Insurance details, Medical history
+  - Form validation and error handling
 
-## Expanding the ESLint configuration
+- **Patient Management**
+  - View list of registered patients
+  - Search and filter patients
+  - View detailed patient information
+  - Track patient visit history
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Visit Management**
+  - Record patient visits
+  - View visit history
+  - Toggle visit permissions
+  - Track visit dates and status
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Tech Stack
+
+- React
+- TypeScript
+- Material-UI
+- SQLite (via better-sqlite3)
+- Express.js
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd patient-registration
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
 ```
+
+3. Start the development server:
+```bash
+npm start
+# or
+yarn start
+```
+
+The application will be available at `http://localhost:3000`
+
+## Database Setup
+
+The application uses SQLite as its database. The database file will be created automatically when you first run the application.
+
+## Usage
+
+### Registering a Patient
+
+1. Navigate to the Patient Registration page
+2. Fill in the required fields:
+   - First Name
+   - Last Name
+   - Date of Birth
+   - Gender
+   - Email
+   - Phone
+   - Address
+3. Optionally fill in additional information
+4. Click "Register Patient"
+
+### Managing Patients
+
+1. View the patient list on the main page
+2. Use the search bar to find specific patients
+3. Click "View Details" to see complete patient information
+4. Click "View Visits" to see patient visit history
+
+### Managing Visits
+
+1. Access visit history through the patient list
+2. Toggle "Allowed to Visit" status
+3. View visit dates and status
+4. Add new visits as needed
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 
