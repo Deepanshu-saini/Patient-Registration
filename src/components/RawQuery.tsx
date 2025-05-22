@@ -24,7 +24,7 @@ const RawQuery: React.FC = () => {
   const handleExecute = async () => {
     try {
       setError(null);
-      const data = await executeRawQuery(query);
+      const data: any = await executeRawQuery(query);
       
       if (data && Array.isArray(data) && data.length > 0) {
         setColumns(Object.keys(data[0]));
@@ -41,11 +41,11 @@ const RawQuery: React.FC = () => {
   };
 
   return (
-    <Paper sx={{ p: 3 }}>
+    <Paper sx={{ p: 3, width: '96vw' }}>
       <Typography variant="h5" gutterBottom>
         Raw SQL Query
       </Typography>
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3,width: '100%' }}>
         <TextField
           fullWidth
           multiline
@@ -72,8 +72,8 @@ const RawQuery: React.FC = () => {
       )}
 
       {results.length > 0 && (
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ width: '100%' }}>
+          <Table sx={{ width: '100%' }}>
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
@@ -101,4 +101,4 @@ const RawQuery: React.FC = () => {
   );
 };
 
-export default RawQuery;
+export default RawQuery; 
