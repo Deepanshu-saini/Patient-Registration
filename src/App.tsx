@@ -4,6 +4,7 @@ import { createTheme } from '@mui/material/styles';
 import Layout from './components/Layout';
 import PatientRegistration from './components/PatientRegistration';
 import PatientList from './components/PatientList';
+import RecordVisit from './components/RecordVisit';
 import RawQuery from './components/RawQuery';
 import { initializeDatabase } from './services/database';
 import React from 'react';
@@ -41,6 +42,7 @@ function App() {
           <Routes>
             <Route path="/" element={<PatientRegistration />} />
             <Route path="/patients" element={<PatientList />} />
+            <Route path="/record-visit" element={<RecordVisit />} />
             <Route path="/query" element={<RawQuery />} />
           </Routes>
         </Layout>

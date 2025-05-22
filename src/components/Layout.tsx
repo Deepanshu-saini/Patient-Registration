@@ -27,16 +27,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Button color="inherit" component={RouterLink} to="/patients">
             Patients
           </Button>
+          <Button color="inherit" component={RouterLink} to="/record-visit">
+            Record Visit
+          </Button>
           <Button color="inherit" component={RouterLink} to="/query">
             Raw Query
           </Button>
         </Toolbar>
       </AppBar>
-      <Container component="main" sx={{ mt: 4, mb: 4, flex: 1 }}>
+      <Container component="main" maxWidth={false} sx={{ mt: 4, mb: 4, flex: 1 }}>
         {children}
       </Container>
     </Box>
   );
 };
 
-export default Layout;
+export default Layout; 
