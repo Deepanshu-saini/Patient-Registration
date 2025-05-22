@@ -152,6 +152,55 @@ export const getAllPatients = async (): Promise<Patient[]> => {
   }));
 };
 
+// Get patient by ID with visit history
+export const getPatientById = async (id: number): Promise<PatientWithVisits | null> => {
+  const result = await sql`
+    SELECT * FROM patients WHERE id = ${id};
+  `;
+  
+  if (result.length === 0) {
+    return null;
+  }
+
+  const visits = await sql`
+    SELECT * FROM visits
+    WHERE patient_id = ${id}
+    ORDER BY visit_date DESC;
+  `;
+
+  const patient = result[0];
+  const visitHistory = visits.map((row: any) => ({
+    id: row.id,
+    patient_id: row.patient_id,
+    visit_date: row.visit_date,
+    doctor_name: row.doctor_name,
+    reason: row.reason,
+    notes: row.notes,
+    created_at: row.created_at
+  }));
+
+  return {
+    id: patient.id,
+    first_name: patient.first_name,
+    last_name: patient.last_name,
+    date_of_birth: patient.date_of_birth,
+    gender: patient.gender,
+    email: patient.email,
+    phone: patient.phone,
+    address: patient.address,
+    blood_group: patient.blood_group,
+    allergies: patient.allergies,
+    conditions: patient.conditions,
+    medications: patient.medications,
+    insurance_provider: patient.insurance_provider,
+    insurance_number: patient.insurance_number,
+    allowed_to_visit: Boolean(patient.allowed_to_visit),
+    visit_count: patient.visit_count,
+    created_at: patient.created_at,
+    visits: visitHistory
+  };
+};
+
 // Add a new visit
 export const addVisit = async (visit: {
   patientId: number;
@@ -211,6 +260,23 @@ export const searchPatients = async (query: string) => {
 
 // Execute raw SQL query
 export const executeRawQuery = async (query: string) => {
-    const result = await sql.query(query);
-    return result;
-  };
+  const result = await sql.query(query);
+  return result;
+};
+
+export const getPatientVisits = async (patientId: number): Promise<Visit[]> => {
+  const result = await sql`
+    SELECT * FROM visits
+    WHERE patient_id = ${patientId}
+    ORDER BY visit_date DESC;
+  `;
+  return result.map((row: any) => ({
+    id: row[0],
+    patient_id: row[1],
+    visit_date: row[2],
+    doctor_name: row[3],
+    reason: row[4],
+    notes: row[5],
+    created_at: row[6]
+  }));
+}; 
