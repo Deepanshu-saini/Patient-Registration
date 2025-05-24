@@ -34,7 +34,25 @@ const PatientRegistration: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addPatient(formData);
+      // Transform form data to match database schema
+      const patientData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: formData.dateOfBirth,
+        gender: formData.gender,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        blood_group: formData.bloodGroup,
+        allergies: formData.allergies,
+        conditions: formData.conditions,
+        medications: formData.medications,
+        insurance_provider: formData.insuranceProvider,
+        insurance_number: formData.insuranceNumber,
+        allowed_to_visit: true // Default value
+      };
+
+      await addPatient(patientData);
       setSuccess('Patient registered successfully!');
       setFormData({
         firstName: '',

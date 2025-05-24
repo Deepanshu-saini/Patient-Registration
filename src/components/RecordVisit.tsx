@@ -43,13 +43,18 @@ const RecordVisit: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (!formData.patientId || !formData.visitDate || !formData.doctorName || !formData.reason) {
+        throw new Error('Please fill in all required fields');
+      }
+
       await addVisit({
-        patientId: parseInt(formData.patientId),
-        visitDate: formData.visitDate,
-        doctorName: formData.doctorName,
+        patient_id: parseInt(formData.patientId),
+        visit_date: formData.visitDate,
+        doctor_name: formData.doctorName,
         reason: formData.reason,
-        notes: formData.notes,
+        notes: formData.notes || '',
       });
+
       setSuccess('Visit recorded successfully!');
       setFormData({
         patientId: '',
@@ -151,7 +156,7 @@ const RecordVisit: React.FC = () => {
         <TextField
           fullWidth
           name="notes"
-          label="Notes"
+          label="Additional Notes"
           value={formData.notes}
           onChange={handleChange}
           multiline
@@ -159,15 +164,21 @@ const RecordVisit: React.FC = () => {
           sx={{ mb: 2 }}
         />
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          size="large"
-        >
-          Record Visit
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={
+              !formData.patientId ||
+              !formData.visitDate ||
+              !formData.doctorName ||
+              !formData.reason
+            }
+          >
+            Record Visit
+          </Button>
+        </Box>
       </Box>
     </Paper>
   );

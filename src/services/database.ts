@@ -1,7 +1,57 @@
-import { neon } from '@neondatabase/serverless';
+import { PGlite } from '@electric-sql/pglite';
+import type { DebugLevel } from '@electric-sql/pglite';
+import { DATABASE_CONFIG } from '../config/database';
 
-// Initialize the database connection
-const sql = neon(import.meta.env.VITE_DATABASE_URL || '');
+// Initialize PGlite with IndexedDB storage
+const db = new PGlite(DATABASE_CONFIG.pglite.storage, {
+  debug: (DATABASE_CONFIG.pglite.debug || undefined) as DebugLevel | undefined
+});
+
+// Initialize database schema
+export const initializeDatabase = async () => {
+  try {
+    // Create patients table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS patients (
+        id SERIAL PRIMARY KEY,
+        first_name VARCHAR(100) NOT NULL,
+        last_name VARCHAR(100) NOT NULL,
+        date_of_birth DATE NOT NULL,
+        gender VARCHAR(10) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        address TEXT NOT NULL,
+        blood_group VARCHAR(5) NOT NULL,
+        allergies TEXT,
+        conditions TEXT,
+        medications TEXT,
+        insurance_provider VARCHAR(100),
+        insurance_number VARCHAR(50),
+        allowed_to_visit BOOLEAN DEFAULT true,
+        visit_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create visits table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS visits (
+        id SERIAL PRIMARY KEY,
+        patient_id INTEGER REFERENCES patients(id),
+        visit_date TIMESTAMP NOT NULL,
+        doctor_name VARCHAR(100) NOT NULL,
+        reason TEXT NOT NULL,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    console.log('Database schema initialized successfully');
+  } catch (error) {
+    console.error('Error initializing database schema:', error);
+    throw error;
+  }
+};
 
 export interface Patient {
   id: number;
@@ -37,298 +87,214 @@ export interface PatientWithVisits extends Patient {
   visits: Visit[];
 }
 
-// Create the patients table if it doesn't exist
-export const initializeDatabase = async () => {
-  await sql`
-    CREATE TABLE IF NOT EXISTS patients (
-      id SERIAL PRIMARY KEY,
-      first_name VARCHAR(100) NOT NULL,
-      last_name VARCHAR(100) NOT NULL,
-      date_of_birth DATE NOT NULL,
-      gender VARCHAR(10) NOT NULL,
-      email VARCHAR(255) NOT NULL,
-      phone VARCHAR(20) NOT NULL,
-      address TEXT NOT NULL,
-      blood_group VARCHAR(5),
-      allergies TEXT,
-      conditions TEXT,
-      medications TEXT,
-      insurance_provider VARCHAR(100),
-      insurance_number VARCHAR(50),
-      allowed_to_visit BOOLEAN DEFAULT true,
-      visit_count INTEGER DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  `;
-
-  await sql`
-    CREATE TABLE IF NOT EXISTS visits (
-      id SERIAL PRIMARY KEY,
-      patient_id INTEGER NOT NULL,
-      visit_date TIMESTAMP NOT NULL,
-      doctor_name VARCHAR(100) NOT NULL,
-      reason TEXT NOT NULL,
-      notes TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY(patient_id) REFERENCES patients(id) ON DELETE CASCADE
-    );
-  `;
-};
-
 // Add a new patient
-export const addPatient = async (patient: {
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  gender: string;
-  email: string;
-  phone: string;
-  address: string;
-  bloodGroup?: string;
-  allergies?: string;
-  conditions?: string;
-  medications?: string;
-  insuranceProvider?: string;
-  insuranceNumber?: string;
-}) => {
-  const result = await sql`
-    INSERT INTO patients (
-      first_name,
-      last_name,
-      date_of_birth,
-      gender,
-      email,
-      phone,
-      address,
-      blood_group,
-      allergies,
-      conditions,
-      medications,
-      insurance_provider,
-      insurance_number
-    ) VALUES (
-      ${patient.firstName},
-      ${patient.lastName},
-      ${patient.dateOfBirth},
-      ${patient.gender},
-      ${patient.email},
-      ${patient.phone},
-      ${patient.address},
-      ${patient.bloodGroup},
-      ${patient.allergies},
-      ${patient.conditions},
-      ${patient.medications},
-      ${patient.insuranceProvider},
-      ${patient.insuranceNumber}
-    )
-    RETURNING *;
-  `;
-  return result[0];
+export const addPatient = async (patient: Omit<Patient, 'id' | 'created_at' | 'visit_count'>) => {
+  try {
+    const result = await db.query(`
+      INSERT INTO patients (
+        first_name, last_name, date_of_birth, gender, email, phone,
+        address, blood_group, allergies, conditions, medications,
+        insurance_provider, insurance_number, allowed_to_visit
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      RETURNING *
+    `, [
+      patient.first_name, patient.last_name, patient.date_of_birth,
+      patient.gender, patient.email, patient.phone, patient.address,
+      patient.blood_group, patient.allergies, patient.conditions,
+      patient.medications, patient.insurance_provider, patient.insurance_number,
+      patient.allowed_to_visit
+    ]);
+    return result.rows[0] as Patient;
+  } catch (error) {
+    console.error('Error adding patient:', error);
+    throw error;
+  }
 };
 
 // Get all patients
-export const getAllPatients = async (): Promise<Patient[]> => {
-  const result = await sql`
-    SELECT * FROM patients
-    ORDER BY created_at DESC;
-  `;
-  return result.map((row: any) => ({
-    id: row.id,
-    first_name: row.first_name,
-    last_name: row.last_name,
-    date_of_birth: row.date_of_birth,
-    gender: row.gender,
-    email: row.email,
-    phone: row.phone,
-    address: row.address,
-    blood_group: row.blood_group,
-    allergies: row.allergies,
-    conditions: row.conditions,
-    medications: row.medications,
-    insurance_provider: row.insurance_provider,
-    insurance_number: row.insurance_number,
-    allowed_to_visit: Boolean(row.allowed_to_visit),
-    visit_count: row.visit_count,
-    created_at: row.created_at
-  }));
-};
-
-// Get patient by ID with visit history
-export const getPatientById = async (id: number): Promise<PatientWithVisits | null> => {
-  const result = await sql`
-    SELECT * FROM patients WHERE id = ${id};
-  `;
-  
-  if (result.length === 0) {
-    return null;
+export const getAllPatients = async () => {
+  try {
+    const result = await db.query('SELECT * FROM patients ORDER BY created_at DESC');
+    return result.rows as Patient[];
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    throw error;
   }
-
-  const visits = await sql`
-    SELECT * FROM visits
-    WHERE patient_id = ${id}
-    ORDER BY visit_date DESC;
-  `;
-
-  const patient = result[0];
-  const visitHistory = visits.map((row: any) => ({
-    id: row.id,
-    patient_id: row.patient_id,
-    visit_date: row.visit_date,
-    doctor_name: row.doctor_name,
-    reason: row.reason,
-    notes: row.notes,
-    created_at: row.created_at
-  }));
-
-  return {
-    id: patient.id,
-    first_name: patient.first_name,
-    last_name: patient.last_name,
-    date_of_birth: patient.date_of_birth,
-    gender: patient.gender,
-    email: patient.email,
-    phone: patient.phone,
-    address: patient.address,
-    blood_group: patient.blood_group,
-    allergies: patient.allergies,
-    conditions: patient.conditions,
-    medications: patient.medications,
-    insurance_provider: patient.insurance_provider,
-    insurance_number: patient.insurance_number,
-    allowed_to_visit: Boolean(patient.allowed_to_visit),
-    visit_count: patient.visit_count,
-    created_at: patient.created_at,
-    visits: visitHistory
-  };
 };
 
-// Add a new visit
-export const addVisit = async (visit: {
-  patientId: number;
-  visitDate: string;
-  doctorName: string;
-  reason: string;
-  notes?: string;
-}) => {
-  const result = await sql`
-    WITH new_visit AS (
-      INSERT INTO visits (
-        patient_id,
-        visit_date,
-        doctor_name,
-        reason,
-        notes
-      ) VALUES (
-        ${visit.patientId},
-        ${visit.visitDate},
-        ${visit.doctorName},
-        ${visit.reason},
-        ${visit.notes}
-      )
-      RETURNING *
-    )
-    UPDATE patients
-    SET visit_count = visit_count + 1
-    WHERE id = ${visit.patientId}
-    RETURNING *;
-  `;
-  return result[0];
-};
+// Get a patient by ID with their visits
+export const getPatientById = async (id: number) => {
+  try {
+    // Get patient details
+    const patientResult = await db.query('SELECT * FROM patients WHERE id = $1', [id]);
+    if (patientResult.rows.length === 0) {
+      return null;
+    }
 
-// Update patient's visit status
-export const updateVisitStatus = async (patientId: number, allowedToVisit: boolean) => {
-  const result = await sql`
-    UPDATE patients
-    SET allowed_to_visit = ${allowedToVisit}
-    WHERE id = ${patientId}
-    RETURNING *;
-  `;
-  return result[0];
-};
+    // Get patient's visits
+    const visitsResult = await db.query(
+      'SELECT * FROM visits WHERE patient_id = $1 ORDER BY visit_date DESC',
+      [id]
+    );
 
-// Search patients
-export const searchPatients = async (query: string) => {
-  return await sql`
-    SELECT * FROM patients
-    WHERE 
-      first_name ILIKE ${`%${query}%`} OR
-      last_name ILIKE ${`%${query}%`} OR
-      email ILIKE ${`%${query}%`} OR
-      phone ILIKE ${`%${query}%`}
-    ORDER BY created_at DESC;
-  `;
-};
+    const patient = patientResult.rows[0] as Patient;
+    const visits = visitsResult.rows as Visit[];
 
-// Execute raw SQL query
-export const executeRawQuery = async (query: string) => {
-  const result = await sql.query(query);
-  return result;
-};
-
-export const getPatientVisits = async (patientId: number): Promise<Visit[]> => {
-  const result = await sql`
-    SELECT * FROM visits
-    WHERE patient_id = ${patientId}
-    ORDER BY visit_date DESC;
-  `;
-  return result.map((row: any) => ({
-    id: row[0],
-    patient_id: row[1],
-    visit_date: row[2],
-    doctor_name: row[3],
-    reason: row[4],
-    notes: row[5],
-    created_at: row[6]
-  }));
-};
-
-// Delete a patient
-export const deletePatient = async (id: number): Promise<void> => {
-  await sql`
-    DELETE FROM patients WHERE id = ${id};
-  `;
+    // Return patient with visits
+    return {
+      ...patient,
+      visits
+    };
+  } catch (error) {
+    console.error('Error fetching patient:', error);
+    throw error;
+  }
 };
 
 // Update a patient
-export const updatePatient = async (id: number, updates: Partial<Patient>): Promise<Patient> => {
-  const result = await sql`
-    UPDATE patients
-    SET
-      first_name = COALESCE(${updates.first_name}, first_name),
-      last_name = COALESCE(${updates.last_name}, last_name),
-      date_of_birth = COALESCE(${updates.date_of_birth}, date_of_birth),
-      gender = COALESCE(${updates.gender}, gender),
-      email = COALESCE(${updates.email}, email),
-      phone = COALESCE(${updates.phone}, phone),
-      address = COALESCE(${updates.address}, address),
-      blood_group = COALESCE(${updates.blood_group}, blood_group),
-      allergies = COALESCE(${updates.allergies}, allergies),
-      conditions = COALESCE(${updates.conditions}, conditions),
-      medications = COALESCE(${updates.medications}, medications),
-      insurance_provider = COALESCE(${updates.insurance_provider}, insurance_provider),
-      insurance_number = COALESCE(${updates.insurance_number}, insurance_number),
-      allowed_to_visit = COALESCE(${updates.allowed_to_visit}, allowed_to_visit)
-    WHERE id = ${id}
-    RETURNING *;
-  `;
-  const row = result[0];
-  return {
-    id: row.id,
-    first_name: row.first_name,
-    last_name: row.last_name,
-    date_of_birth: row.date_of_birth,
-    gender: row.gender,
-    email: row.email,
-    phone: row.phone,
-    address: row.address,
-    blood_group: row.blood_group,
-    allergies: row.allergies,
-    conditions: row.conditions,
-    medications: row.medications,
-    insurance_provider: row.insurance_provider,
-    insurance_number: row.insurance_number,
-    allowed_to_visit: Boolean(row.allowed_to_visit),
-    visit_count: row.visit_count,
-    created_at: row.created_at
-  };
+export const updatePatient = async (id: number, patient: Partial<Patient>) => {
+  try {
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramCount = 1;
+
+    Object.entries(patient).forEach(([key, value]) => {
+      if (value !== undefined && key !== 'id' && key !== 'created_at' && key !== 'visit_count') {
+        updates.push(`${key} = $${paramCount}`);
+        values.push(value);
+        paramCount++;
+      }
+    });
+
+    if (updates.length === 0) return null;
+
+    values.push(id);
+    const result = await db.query(`
+      UPDATE patients
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING *
+    `, values);
+    return result.rows[0] as Patient;
+  } catch (error) {
+    console.error('Error updating patient:', error);
+    throw error;
+  }
+};
+
+// Delete a patient
+export const deletePatient = async (id: number) => {
+  try {
+    // First delete all visits for this patient
+    await db.query('DELETE FROM visits WHERE patient_id = $1', [id]);
+    
+    // Then delete the patient
+    await db.query('DELETE FROM patients WHERE id = $1', [id]);
+  } catch (error) {
+    console.error('Error deleting patient:', error);
+    throw error;
+  }
+};
+
+// Add a visit
+export const addVisit = async (visit: Omit<Visit, 'id' | 'created_at'>) => {
+  try {
+    const result = await db.query(`
+      INSERT INTO visits (patient_id, visit_date, doctor_name, reason, notes)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `, [
+      visit.patient_id, visit.visit_date, visit.doctor_name,
+      visit.reason, visit.notes
+    ]);
+
+    // Update visit count
+    await db.query(`
+      UPDATE patients
+      SET visit_count = visit_count + 1
+      WHERE id = $1
+    `, [visit.patient_id]);
+
+    return result.rows[0] as Visit;
+  } catch (error) {
+    console.error('Error adding visit:', error);
+    throw error;
+  }
+};
+
+// Get all visits for a patient
+export const getPatientVisits = async (patientId: number) => {
+  try {
+    const result = await db.query(
+      'SELECT * FROM visits WHERE patient_id = $1 ORDER BY visit_date DESC',
+      [patientId]
+    );
+    return result.rows as Visit[];
+  } catch (error) {
+    console.error('Error fetching patient visits:', error);
+    throw error;
+  }
+};
+
+// Get all visits with patient information
+export const getAllVisits = async () => {
+  try {
+    const result = await db.query(`
+      SELECT v.*, p.first_name, p.last_name
+      FROM visits v
+      JOIN patients p ON v.patient_id = p.id
+      ORDER BY v.visit_date DESC
+    `);
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching all visits:', error);
+    throw error;
+  }
+};
+
+// Delete a visit
+export const deleteVisit = async (id: number) => {
+  try {
+    const visit = await db.query('SELECT patient_id FROM visits WHERE id = $1', [id]);
+    const row = visit.rows[0] as { patient_id: number } | undefined;
+    if (row) {
+      await db.query('DELETE FROM visits WHERE id = $1', [id]);
+      await db.query(`
+        UPDATE patients
+        SET visit_count = visit_count - 1
+        WHERE id = $1
+      `, [row.patient_id]);
+    }
+  } catch (error) {
+    console.error('Error deleting visit:', error);
+    throw error;
+  }
+};
+
+// Update patient's visit status
+export const updateVisitStatus = async (id: number, allowedToVisit: boolean) => {
+  try {
+    const result = await db.query(
+      'UPDATE patients SET allowed_to_visit = $1 WHERE id = $2 RETURNING *',
+      [allowedToVisit, id]
+    );
+    return result.rows[0] as Patient;
+  } catch (error) {
+    console.error('Error updating visit status:', error);
+    throw error;
+  }
+};
+
+// Execute raw query (SELECT only)
+export const executeRawQuery = async (query: string) => {
+  try {
+    if (!query.toLowerCase().trim().startsWith('select')) {
+      throw new Error('Only SELECT queries are allowed');
+    }
+    const result = await db.query(query);
+    return result.rows;
+  } catch (error) {
+    console.error('Error executing raw query:', error);
+    throw error;
+  }
 }; 
