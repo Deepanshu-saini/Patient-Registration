@@ -28,18 +28,35 @@ A modern web application for managing patient records and visits in a healthcare
 - **Frontend**: React with TypeScript
 - **UI Framework**: Material-UI (MUI)
 - **Routing**: React Router
-- **Database**: Neon Serverless PostgreSQL
+- **Database**: pgLite (In-memory database with persistency using indexedDB)
 - **Deployment**: Vercel
 
-## Database: Neon Serverless PostgreSQL
+## Database: pgLite
+
+This project uses pgLite, a lightweight PostgreSQL-compatible database that runs entirely in memory. pgLite provides several advantages:
+
+### Benefits of pgLite
+- **Zero Configuration**: No need to install or configure PostgreSQL
+- **In-Memory Performance**: Fast data access and query execution
+- **PostgreSQL Compatibility**: Supports standard PostgreSQL SQL syntax
+- **Perfect for Development**: Ideal for development and testing environments
+- **Easy Setup**: Automatically creates and manages the database
+
+### How pgLite Works in This Project
+1. **Database Initialization**: The database is automatically initialized when the application starts
+2. **Schema Creation**: Tables are created using standard PostgreSQL syntax
+3. **Data Persistence**: Data is stored in memory during the application's runtime
+4. **Query Execution**: All database operations use standard PostgreSQL queries
 
 ## Development Challenges and Solutions
 
 ### 1. Database Integration
-**Challenge**: Implementing a lightweight, PostgreSQL-compatible database solution
-**Solution**:
+**Challenge**: Implementing a lightweight, pglite database solution
+**Solution**: 
+- Used pgLite for in-memory database functionality
 - Implemented automatic database initialization
 - Created robust error handling for database operations
+- initially started development using neon serverless PostgreSQL then latter on fixed issues related to pglite.
 
 ### 2. Security Concerns
 **Challenge**: Ensuring secure data access and preventing SQL injection
@@ -75,39 +92,12 @@ A modern web application for managing patient records and visits in a healthcare
    npm install
    ```
 
-3. Set up environment variables:
-   Create a `.env` file in the root directory with the following variables:
-   ```
-   DATABASE_URL=your_neon_postgresql_connection_string
-   ```
-
-4. Start the development server:
+3. Start the development server:
    ```bash
    npm run dev
    ```
 
-5. Open your browser and navigate to `http://localhost:3000`
-
-## Neon Serverless PostgreSQL Setup
-
-### 1. Create Neon Account
-1. Visit [Neon's website](https://neon.tech)
-2. Sign up for a free account
-3. Verify your email address
-
-### 2. Create a New Project
-1. Log in to your Neon dashboard
-2. Click "New Project"
-3. Choose a project name (e.g., "patient-registration")
-4. Select a region closest to your users
-5. Click "Create Project"
-
-### 3. Get Connection Details
-1. In your project dashboard, find the "Connection Details" section
-2. Copy the connection string that looks like:
-   ```
-   postgresql://[user]:[password]@[endpoint]/[dbname]
-   ```
+4. Open your browser and navigate to `http://localhost:3000`
 
 ## Database Schema
 
